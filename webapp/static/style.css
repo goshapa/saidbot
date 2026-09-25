@@ -23,6 +23,7 @@
 
 html, body {
   height: 100%;
+  overscroll-behavior: none;
 }
 
 body {
@@ -30,8 +31,25 @@ body {
   background: var(--bg);
   color: var(--text);
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  padding: 14px 14px calc(150px + env(safe-area-inset-bottom));
-  min-height: 100vh;
+  overflow: hidden;
+}
+
+#app {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  height: 100dvh;
+}
+
+#scroll-area {
+  flex: 1 1 auto;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding: 14px 14px 20px;
+}
+
+.bottom-nav {
+  flex: 0 0 auto;
 }
 
 h1, h2, h3 {
@@ -555,11 +573,8 @@ button {
 
 /* Bottom nav */
 .bottom-nav {
-  position: fixed;
-  left: 12px;
-  right: 12px;
-  bottom: 10px;
   display: flex;
+  margin: 0 12px calc(10px + env(safe-area-inset-bottom));
   background: rgba(19, 27, 46, 0.92);
   backdrop-filter: blur(14px);
   border: 1px solid var(--card-border);

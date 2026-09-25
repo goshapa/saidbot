@@ -92,23 +92,47 @@ function renderHome() {
 
   const popular = document.getElementById("home-popular");
   popular.innerHTML = "";
-  const popularProducts = catalog.flatMap((c) => c.products).slice(0, 4);
-  popularProducts.forEach((product) => popular.appendChild(productTile(product)));
+  const popularProducts = catalog.flatMap((c) => productTiles(c.products[0] ? [c.products[0]] : [])).slice(0, 4);
+  popularProducts.forEach((tile) => popular.appendChild(tile));
 }
 
-function productTile(product) {
+const QTY_PRESETS = [100, 300, 500, 750, 1000];
+
+function productTile(product, presetQty) {
   const tile = document.createElement("div");
   tile.className = "product-tile";
-  const priceLabel = product.is_variable
-    ? `от ${formatMoney(product.unit_price * product.min_quantity)}`
-    : formatMoney(product.price);
+
+  let title = product.title;
+  let priceLabel;
+  if (product.is_variable && presetQty) {
+    title = `${presetQty} ${product.title}`;
+    priceLabel = formatMoney(product.unit_price * presetQty);
+  } else if (product.is_variable) {
+    priceLabel = `от ${formatMoney(product.unit_price * product.min_quantity)}`;
+  } else {
+    priceLabel = formatMoney(product.price);
+  }
+
   tile.innerHTML = `
     <div class="icon">🎁</div>
-    <div class="title">${product.title}</div>
+    <div class="title">${title}</div>
     <div class="price">${priceLabel}</div>
   `;
-  tile.onclick = () => openOrderScreen(product);
+  tile.onclick = () => openOrderScreen(product, presetQty);
   return tile;
+}
+
+function productTiles(products) {
+  const tiles = [];
+  products.forEach((product) => {
+    if (product.is_variable) {
+      const values = [...new Set([product.min_quantity, ...QTY_PRESETS.filter((v) => v >= product.min_quantity)])];
+      values.forEach((qty) => tiles.push(productTile(product, qty)));
+    } else {
+      tiles.push(productTile(product));
+    }
+  });
+  return tiles;
 }
 
 function renderTabs() {
@@ -132,10 +156,8 @@ function renderProducts() {
   container.innerHTML = "";
   const category = catalog.find((c) => c.id === activeCategoryId);
   if (!category) return;
-  category.products.forEach((product) => container.appendChild(productTile(product)));
+  productTiles(category.products).forEach((tile) => container.appendChild(tile));
 }
-
-const QTY_PRESETS = [100, 300, 500, 750, 1000];
 
 function updateOrderPrice() {
   if (!selectedProduct) return;
@@ -169,7 +191,7 @@ function renderQtyPresets(product) {
   });
 }
 
-function openOrderScreen(product) {
+function openOrderScreen(product, presetQty) {
   selectedProduct = product;
   document.getElementById("order-title").textContent = product.title;
 
@@ -181,7 +203,7 @@ function openOrderScreen(product) {
     qtyField.classList.remove("hidden");
     qtyLabel.textContent = `Количество (минимум ${product.min_quantity})`;
     qtyInput.placeholder = String(product.min_quantity);
-    qtyInput.value = product.min_quantity;
+    qtyInput.value = presetQty || product.min_quantity;
     renderQtyPresets(product);
   } else {
     qtyField.classList.add("hidden");

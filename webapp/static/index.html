@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>Магазин</title>
-  <link rel="stylesheet" href="/style.css?v=4">
+  <link rel="stylesheet" href="/style.css?v=5">
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
 </head>
 <body>
@@ -15,6 +15,7 @@
   </div>
 
   <div id="app" class="hidden">
+   <div id="scroll-area">
 
     <div class="topbar">
       <div class="topbar-user">
@@ -127,15 +128,16 @@
       </div>
     </div>
 
-  </div>
+   </div>
 
-  <div class="bottom-nav">
+   <div class="bottom-nav">
     <button class="nav-btn active" data-nav="home"><span class="nav-emoji">🏠</span>Главная</button>
     <button class="nav-btn" data-nav="catalog"><span class="nav-emoji">🛍</span>Каталог</button>
     <button class="nav-btn" data-nav="orders"><span class="nav-emoji">📦</span>Заказы</button>
     <button class="nav-btn" data-nav="profile"><span class="nav-emoji">👤</span>Профиль</button>
+   </div>
   </div>
 
-  <script src="/app.js?v=4"></script>
+  <script src="/app.js?v=5"></script>
 </body>
 </html>
