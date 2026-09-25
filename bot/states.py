@@ -2,6 +2,7 @@ from aiogram.fsm.state import State, StatesGroup
 
 
 class OrderFSM(StatesGroup):
+    entering_quantity = State()
     entering_recipient = State()
     confirming = State()
     waiting_receipt = State()

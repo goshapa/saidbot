@@ -42,14 +42,17 @@ def categories_kb(categories: list[Category]) -> InlineKeyboardMarkup:
     return InlineKeyboardMarkup(inline_keyboard=rows)
 
 
+def _product_button_text(p: Product) -> str:
+    if p.is_variable:
+        price = f"{p.unit_price:,.0f} {settings.CURRENCY}/шт".replace(",", " ")
+        return f"{p.title} — от {p.min_quantity} шт, {price}"
+    price = f"{p.price:,.0f} {settings.CURRENCY}".replace(",", " ")
+    return f"{p.title} — {price}"
+
+
 def products_kb(products: list[Product], category_type: str) -> InlineKeyboardMarkup:
     rows = [
-        [
-            InlineKeyboardButton(
-                text=f"{p.title} — {p.price:,.0f} {settings.CURRENCY}".replace(",", " "),
-                callback_data=f"product:{p.id}",
-            )
-        ]
+        [InlineKeyboardButton(text=_product_button_text(p), callback_data=f"product:{p.id}")]
         for p in products
     ]
     rows.append(

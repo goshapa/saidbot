@@ -75,6 +75,9 @@ class Product(Base):
     description: Mapped[str | None] = mapped_column(Text, nullable=True)
     amount: Mapped[int | None] = mapped_column(Integer, nullable=True)
     price: Mapped[float] = mapped_column(Float)
+    is_variable: Mapped[bool] = mapped_column(Boolean, default=False)
+    unit_price: Mapped[float | None] = mapped_column(Float, nullable=True)
+    min_quantity: Mapped[int] = mapped_column(Integer, default=1)
     requires_recipient: Mapped[bool] = mapped_column(Boolean, default=True)
     recipient_label: Mapped[str] = mapped_column(
         String(255), default="Telegram-username получателя (без @)"

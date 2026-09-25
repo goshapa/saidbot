@@ -35,14 +35,20 @@ async def create_product(
     request: Request,
     category_id: int = Form(...),
     title: str = Form(...),
-    price: float = Form(...),
+    price: float = Form(0),
     amount: int | None = Form(None),
     recipient_label: str = Form(""),
     requires_recipient: bool = Form(False),
+    is_variable: bool = Form(False),
+    unit_price: float | None = Form(None),
+    min_quantity: int = Form(1),
 ):
     redirect = require_login(request)
     if redirect:
         return redirect
+
+    if is_variable:
+        price = (unit_price or 0) * (min_quantity or 1)
 
     async with async_session() as session:
         product = Product(
@@ -52,6 +58,9 @@ async def create_product(
             amount=amount,
             recipient_label=recipient_label or "Telegram-username получателя (без @)",
             requires_recipient=requires_recipient,
+            is_variable=is_variable,
+            unit_price=unit_price if is_variable else None,
+            min_quantity=min_quantity if is_variable else 1,
         )
         session.add(product)
         await session.commit()
@@ -81,15 +90,21 @@ async def edit_product(
     request: Request,
     product_id: int,
     title: str = Form(...),
-    price: float = Form(...),
+    price: float = Form(0),
     amount: int | None = Form(None),
     recipient_label: str = Form(""),
     requires_recipient: bool = Form(False),
     is_active: bool = Form(False),
+    is_variable: bool = Form(False),
+    unit_price: float | None = Form(None),
+    min_quantity: int = Form(1),
 ):
     redirect = require_login(request)
     if redirect:
         return redirect
+
+    if is_variable:
+        price = (unit_price or 0) * (min_quantity or 1)
 
     async with async_session() as session:
         product = await session.get(Product, product_id)
@@ -102,6 +117,9 @@ async def edit_product(
         product.recipient_label = recipient_label or product.recipient_label
         product.requires_recipient = requires_recipient
         product.is_active = is_active
+        product.is_variable = is_variable
+        product.unit_price = unit_price if is_variable else None
+        product.min_quantity = min_quantity if is_variable else 1
         await session.commit()
 
     return RedirectResponse(url="/products", status_code=303)

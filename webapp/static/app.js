@@ -99,10 +99,13 @@ function renderHome() {
 function productTile(product) {
   const tile = document.createElement("div");
   tile.className = "product-tile";
+  const priceLabel = product.is_variable
+    ? `от ${formatMoney(product.unit_price * product.min_quantity)}`
+    : formatMoney(product.price);
   tile.innerHTML = `
     <div class="icon">🎁</div>
     <div class="title">${product.title}</div>
-    <div class="price">${formatMoney(product.price)}</div>
+    <div class="price">${priceLabel}</div>
   `;
   tile.onclick = () => openOrderScreen(product);
   return tile;
@@ -132,10 +135,34 @@ function renderProducts() {
   category.products.forEach((product) => container.appendChild(productTile(product)));
 }
 
+function updateOrderPrice() {
+  if (!selectedProduct) return;
+  if (selectedProduct.is_variable) {
+    const qtyInput = document.getElementById("order-quantity-input");
+    const qty = parseInt(qtyInput.value, 10) || 0;
+    document.getElementById("order-price").textContent = formatMoney(selectedProduct.unit_price * qty);
+  } else {
+    document.getElementById("order-price").textContent = formatMoney(selectedProduct.price);
+  }
+}
+
 function openOrderScreen(product) {
   selectedProduct = product;
   document.getElementById("order-title").textContent = product.title;
-  document.getElementById("order-price").textContent = formatMoney(product.price);
+
+  const qtyField = document.getElementById("order-quantity-field");
+  const qtyLabel = document.getElementById("order-quantity-label");
+  const qtyInput = document.getElementById("order-quantity-input");
+
+  if (product.is_variable) {
+    qtyField.classList.remove("hidden");
+    qtyLabel.textContent = `Количество (минимум ${product.min_quantity})`;
+    qtyInput.placeholder = String(product.min_quantity);
+    qtyInput.value = product.min_quantity;
+  } else {
+    qtyField.classList.add("hidden");
+    qtyInput.value = "";
+  }
 
   const field = document.getElementById("order-recipient-field");
   const label = document.getElementById("order-recipient-label");
@@ -149,8 +176,11 @@ function openOrderScreen(product) {
     field.classList.add("hidden");
   }
 
+  updateOrderPrice();
   showScreen("order");
 }
+
+document.getElementById("order-quantity-input").oninput = updateOrderPrice;
 
 document.getElementById("btn-create-order").onclick = async () => {
   if (!selectedProduct) return;
@@ -160,9 +190,19 @@ document.getElementById("btn-create-order").onclick = async () => {
     return;
   }
 
+  let quantity = 1;
+  if (selectedProduct.is_variable) {
+    quantity = parseInt(document.getElementById("order-quantity-input").value, 10) || 0;
+    if (quantity < selectedProduct.min_quantity) {
+      alertMsg(`Минимальное количество — ${selectedProduct.min_quantity}`);
+      return;
+    }
+  }
+
   const formData = new FormData();
   formData.append("product_id", selectedProduct.id);
   formData.append("recipient_info", recipientInput.value.trim());
+  formData.append("quantity", quantity);
 
   try {
     const order = await api("/api/orders", { method: "POST", body: formData });

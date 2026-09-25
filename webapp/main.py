@@ -69,6 +69,9 @@ async def get_catalog():
                     "description": p.description,
                     "amount": p.amount,
                     "price": p.price,
+                    "is_variable": p.is_variable,
+                    "unit_price": p.unit_price,
+                    "min_quantity": p.min_quantity,
                     "requires_recipient": p.requires_recipient,
                     "recipient_label": p.recipient_label,
                 }
@@ -121,6 +124,7 @@ async def my_orders(x_telegram_init_data: str = Header(default="")):
 async def create_order(
     product_id: int = Form(...),
     recipient_info: str = Form(""),
+    quantity: int = Form(1),
     x_telegram_init_data: str = Header(default=""),
 ):
     tg_user = _auth(x_telegram_init_data)
@@ -133,6 +137,16 @@ async def create_order(
         if product.requires_recipient and not recipient_info.strip():
             raise HTTPException(status_code=400, detail="Укажите получателя")
 
+        if product.is_variable:
+            if quantity < product.min_quantity:
+                raise HTTPException(
+                    status_code=400, detail=f"Минимальное количество — {product.min_quantity}"
+                )
+            total_price = product.unit_price * quantity
+        else:
+            quantity = 1
+            total_price = product.price
+
         card = await get_active_card(session)
         if card is None:
             raise HTTPException(status_code=503, detail="Оплата временно недоступна")
@@ -144,7 +158,8 @@ async def create_order(
         order = Order(
             user_id=user.id,
             product_id=product.id,
-            total_price=product.price,
+            quantity=quantity,
+            total_price=total_price,
             recipient_info=recipient_info.strip() or None,
         )
         session.add(order)
@@ -155,7 +170,7 @@ async def create_order(
     return {
         "order_id": order_id,
         "product_title": product.title,
-        "total_price": product.price,
+        "total_price": total_price,
         "currency": settings.CURRENCY,
         "card": {
             "bank_name": card.bank_name,

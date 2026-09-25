@@ -14,8 +14,17 @@ from bot.states import OrderFSM
 router = Router()
 
 
-@router.message(OrderFSM.entering_recipient)
-async def receive_recipient(message: Message, state: FSMContext) -> None:
+class _FakeCallback:
+    def __init__(self, message: Message):
+        self.message = message
+        self.from_user = message.from_user
+
+    async def answer(self, *args, **kwargs):
+        return None
+
+
+@router.message(OrderFSM.entering_quantity)
+async def receive_quantity(message: Message, state: FSMContext) -> None:
     data = await state.get_data()
     product_id = data.get("product_id")
 
@@ -27,20 +36,45 @@ async def receive_recipient(message: Message, state: FSMContext) -> None:
         await state.clear()
         return
 
-    recipient_info = message.text.strip()
+    text = message.text.strip() if message.text else ""
+    if not text.isdigit():
+        await message.answer("Введите количество числом.")
+        return
+
+    quantity = int(text)
+    if quantity < product.min_quantity:
+        await message.answer(f"Минимальное количество — {product.min_quantity}. Попробуйте снова.")
+        return
+
+    await state.update_data(quantity=quantity)
+
+    if product.requires_recipient:
+        await state.set_state(OrderFSM.entering_recipient)
+        await message.answer(f"Введите {product.recipient_label.lower()}:")
+    else:
+        await _create_pending_order(_FakeCallback(message), state, product, quantity=quantity)
+
+
+@router.message(OrderFSM.entering_recipient)
+async def receive_recipient(message: Message, state: FSMContext) -> None:
+    data = await state.get_data()
+    product_id = data.get("product_id")
+    quantity = data.get("quantity", 1)
+
+    async with async_session() as session:
+        product = await session.get(Product, product_id)
+
+    if product is None:
+        await message.answer("Товар больше не доступен.", reply_markup=main_menu_kb())
+        await state.clear()
+        return
+
+    recipient_info = message.text.strip() if message.text else ""
     if not recipient_info:
         await message.answer("Пожалуйста, отправьте текстом.")
         return
 
-    class _FakeCallback:
-        def __init__(self, message: Message):
-            self.message = message
-            self.from_user = message.from_user
-
-        async def answer(self, *args, **kwargs):
-            return None
-
-    await _create_pending_order(_FakeCallback(message), state, product, recipient_info)
+    await _create_pending_order(_FakeCallback(message), state, product, recipient_info, quantity=quantity)
 
 
 @router.callback_query(OrderFSM.confirming, F.data == "order_confirm")

@@ -84,9 +84,14 @@ async def show_product_detail(callback: CallbackQuery, state: FSMContext) -> Non
 
     await state.update_data(product_id=product.id)
 
-    if product.requires_recipient:
-        from bot.states import OrderFSM
-
+    if product.is_variable:
+        await state.set_state(OrderFSM.entering_quantity)
+        await callback.message.edit_text(
+            f"Вы выбрали: {product.title}\n"
+            f"Цена за 1 шт: {product.unit_price:,.0f}".replace(",", " ") + "\n\n"
+            f"Введите количество (минимум {product.min_quantity}):"
+        )
+    elif product.requires_recipient:
         await state.set_state(OrderFSM.entering_recipient)
         await callback.message.edit_text(
             f"Вы выбрали: {product.title}\n"
@@ -98,9 +103,11 @@ async def show_product_detail(callback: CallbackQuery, state: FSMContext) -> Non
     await callback.answer()
 
 
-async def _create_pending_order(callback, state, product, recipient_info: str | None = None):
+async def _create_pending_order(callback, state, product, recipient_info: str | None = None, quantity: int = 1):
     from app.models import Order
     from bot.services.orders import get_or_create_user, order_summary_text
+
+    total_price = product.unit_price * quantity if product.is_variable else product.price
 
     async with async_session() as session:
         user = await get_or_create_user(
@@ -109,7 +116,8 @@ async def _create_pending_order(callback, state, product, recipient_info: str | 
         order = Order(
             user_id=user.id,
             product_id=product.id,
-            total_price=product.price,
+            quantity=quantity,
+            total_price=total_price,
             recipient_info=recipient_info,
         )
         session.add(order)
