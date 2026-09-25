@@ -50,6 +50,22 @@ uvicorn admin.main:app --reload --port 8000
 - управлять каталогом товаров (звёзды/премиум/донаты);
 - управлять картами для приёма оплаты.
 
+## Деплой на Railway (просто, без терминала)
+
+1. Зайдите на [railway.app](https://railway.app) и войдите через свой GitHub-аккаунт.
+2. Нажмите **New Project → Deploy from GitHub repo** и выберите репозиторий `goshapa/saidbot`.
+3. Railway сам найдёт `Procfile` и предложит запустить процесс `worker` (это и есть бот). Если спросит тип сервиса — выберите **Worker** (не Web), боту не нужен открытый порт.
+4. Откройте вкладку **Variables** этого сервиса и добавьте переменные (значения — как в вашем `.env`):
+   - `BOT_TOKEN`
+   - `ADMIN_IDS`
+   - `ADMIN_CHAT_ID`
+   - `DATABASE_URL` (можно оставить `sqlite+aiosqlite:///./data/saidbot.db`)
+   - `CURRENCY`
+5. Нажмите **Deploy**. Через минуту бот начнёт отвечать в Telegram.
+6. (Опционально) чтобы поднять админ-панель — добавьте в этом же проекте ещё один сервис из того же репозитория, но с командой запуска `uvicorn admin.main:app --host 0.0.0.0 --port $PORT`, и добавьте туда `ADMIN_PANEL_USERNAME`, `ADMIN_PANEL_PASSWORD`, `ADMIN_PANEL_SECRET`.
+
+> На бесплатном плане Railway база SQLite не сохраняется между переустановками диска — для реального использования подключите Railway PostgreSQL (кнопка **New → Database → PostgreSQL** в том же проекте) и укажите выданный `DATABASE_URL` в переменных (замените префикс на `postgresql+asyncpg://`).
+
 ## Продакшн-заметки
 
 - SQLite (`data/saidbot.db`) подходит для старта; при росте нагрузки — перейти на PostgreSQL, поменяв `DATABASE_URL`.
