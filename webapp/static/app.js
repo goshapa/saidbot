@@ -135,15 +135,38 @@ function renderProducts() {
   category.products.forEach((product) => container.appendChild(productTile(product)));
 }
 
+const QTY_PRESETS = [100, 300, 500, 750, 1000];
+
 function updateOrderPrice() {
   if (!selectedProduct) return;
   if (selectedProduct.is_variable) {
     const qtyInput = document.getElementById("order-quantity-input");
     const qty = parseInt(qtyInput.value, 10) || 0;
     document.getElementById("order-price").textContent = formatMoney(selectedProduct.unit_price * qty);
+    document.querySelectorAll(".qty-chip").forEach((chip) => {
+      chip.classList.toggle("active", parseInt(chip.dataset.qty, 10) === qty);
+    });
   } else {
     document.getElementById("order-price").textContent = formatMoney(selectedProduct.price);
   }
+}
+
+function renderQtyPresets(product) {
+  const box = document.getElementById("qty-presets");
+  box.innerHTML = "";
+  const values = [product.min_quantity, ...QTY_PRESETS.filter((v) => v >= product.min_quantity)];
+  [...new Set(values)].forEach((value) => {
+    const chip = document.createElement("button");
+    chip.type = "button";
+    chip.className = "qty-chip";
+    chip.dataset.qty = value;
+    chip.textContent = value;
+    chip.onclick = () => {
+      document.getElementById("order-quantity-input").value = value;
+      updateOrderPrice();
+    };
+    box.appendChild(chip);
+  });
 }
 
 function openOrderScreen(product) {
@@ -159,6 +182,7 @@ function openOrderScreen(product) {
     qtyLabel.textContent = `Количество (минимум ${product.min_quantity})`;
     qtyInput.placeholder = String(product.min_quantity);
     qtyInput.value = product.min_quantity;
+    renderQtyPresets(product);
   } else {
     qtyField.classList.add("hidden");
     qtyInput.value = "";

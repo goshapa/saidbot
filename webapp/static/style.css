@@ -30,7 +30,7 @@ body {
   background: var(--bg);
   color: var(--text);
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  padding: 14px 14px calc(100px + env(safe-area-inset-bottom));
+  padding: 14px 14px calc(150px + env(safe-area-inset-bottom));
   min-height: 100vh;
 }
 
@@ -348,6 +348,29 @@ button {
 .field input:focus {
   outline: none;
   border-color: var(--accent);
+}
+
+.qty-presets {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: -4px 0 14px;
+}
+
+.qty-chip {
+  padding: 8px 14px;
+  border-radius: 999px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--card-border);
+  color: var(--text);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.qty-chip.active {
+  background: var(--accent-grad);
+  border-color: transparent;
 }
 
 .primary-btn {

@@ -89,7 +89,7 @@ async def show_product_detail(callback: CallbackQuery, state: FSMContext) -> Non
         await callback.message.edit_text(
             f"Вы выбрали: {product.title}\n"
             f"Цена за 1 шт: {product.unit_price:,.0f}".replace(",", " ") + "\n\n"
-            f"Введите количество (минимум {product.min_quantity}):"
+            f"Введите количество (минимум {product.min_quantity}), например: 100, 300, 500, 750, 1000"
         )
     elif product.requires_recipient:
         await state.set_state(OrderFSM.entering_recipient)

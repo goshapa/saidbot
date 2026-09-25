@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>Магазин</title>
-  <link rel="stylesheet" href="/style.css?v=3">
+  <link rel="stylesheet" href="/style.css?v=4">
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
 </head>
 <body>
@@ -63,6 +63,7 @@
         <h3 id="order-title" style="margin-bottom:10px;"></h3>
         <div id="order-quantity-field" class="field hidden">
           <label id="order-quantity-label">Количество</label>
+          <div id="qty-presets" class="qty-presets"></div>
           <input id="order-quantity-input" type="number" inputmode="numeric" placeholder="50">
         </div>
         <div id="order-recipient-field" class="field hidden">
@@ -135,6 +136,6 @@
     <button class="nav-btn" data-nav="profile"><span class="nav-emoji">👤</span>Профиль</button>
   </div>
 
-  <script src="/app.js?v=3"></script>
+  <script src="/app.js?v=4"></script>
 </body>
 </html>
