@@ -1,4 +1,10 @@
-from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup, KeyboardButton, ReplyKeyboardMarkup
+from aiogram.types import (
+    InlineKeyboardButton,
+    InlineKeyboardMarkup,
+    KeyboardButton,
+    ReplyKeyboardMarkup,
+    WebAppInfo,
+)
 
 from app.config import settings
 from app.models import PRODUCT_TYPE_LABELS, Category, Order, Product
@@ -11,7 +17,12 @@ MAIN_MENU_BUTTONS = [
 
 
 def main_menu_kb() -> InlineKeyboardMarkup:
-    rows = [[InlineKeyboardButton(text=text, callback_data=cb)] for text, cb in MAIN_MENU_BUTTONS]
+    rows = []
+    if settings.WEBAPP_URL:
+        rows.append(
+            [InlineKeyboardButton(text="🛍 Открыть магазин", web_app=WebAppInfo(url=settings.WEBAPP_URL))]
+        )
+    rows += [[InlineKeyboardButton(text=text, callback_data=cb)] for text, cb in MAIN_MENU_BUTTONS]
     rows.append([InlineKeyboardButton(text="📦 Мои заказы", callback_data="my_orders")])
     rows.append([InlineKeyboardButton(text="🆘 Поддержка", callback_data="support")])
     return InlineKeyboardMarkup(inline_keyboard=rows)

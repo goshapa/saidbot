@@ -5,6 +5,7 @@ from aiogram import Bot, Dispatcher
 from aiogram.client.default import DefaultBotProperties
 from aiogram.enums import ParseMode
 from aiogram.fsm.storage.memory import MemoryStorage
+from aiogram.types import MenuButtonWebApp, WebAppInfo
 
 from app.config import settings
 from app.db import init_db
@@ -26,6 +27,12 @@ async def main() -> None:
     dp.include_router(router)
 
     await bot.delete_webhook(drop_pending_updates=True)
+
+    if settings.WEBAPP_URL:
+        await bot.set_chat_menu_button(
+            menu_button=MenuButtonWebApp(text="Магазин", web_app=WebAppInfo(url=settings.WEBAPP_URL))
+        )
+
     await dp.start_polling(bot)
 
 

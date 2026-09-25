@@ -31,5 +31,7 @@ class Settings:
     ADMIN_PANEL_PASSWORD: str = os.getenv("ADMIN_PANEL_PASSWORD", "change_me")
     ADMIN_PANEL_SECRET: str = os.getenv("ADMIN_PANEL_SECRET", "change_me_secret")
 
+    WEBAPP_URL: str = os.getenv("WEBAPP_URL", "")
+
 
 settings = Settings()

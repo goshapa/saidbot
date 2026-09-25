@@ -1,0 +1,200 @@
+:root {
+  --bg: var(--tg-theme-bg-color, #ffffff);
+  --text: var(--tg-theme-text-color, #111111);
+  --hint: var(--tg-theme-hint-color, #888888);
+  --link: var(--tg-theme-link-color, #2481cc);
+  --button: var(--tg-theme-button-color, #2481cc);
+  --button-text: var(--tg-theme-button-text-color, #ffffff);
+  --secondary-bg: var(--tg-theme-secondary-bg-color, #f4f4f5);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 12px 12px 90px;
+  background: var(--bg);
+  color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+h1, h2, h3 {
+  margin: 0 0 8px;
+}
+
+.hidden {
+  display: none !important;
+}
+
+.tabs {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 8px;
+  margin-bottom: 12px;
+}
+
+.tab {
+  flex: 0 0 auto;
+  padding: 8px 14px;
+  border-radius: 999px;
+  background: var(--secondary-bg);
+  color: var(--text);
+  font-size: 14px;
+  border: none;
+  cursor: pointer;
+}
+
+.tab.active {
+  background: var(--button);
+  color: var(--button-text);
+}
+
+.product-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: var(--secondary-bg);
+  border-radius: 14px;
+  padding: 14px;
+  margin-bottom: 10px;
+}
+
+.product-title {
+  font-weight: 600;
+  font-size: 15px;
+  margin-bottom: 2px;
+}
+
+.product-desc {
+  color: var(--hint);
+  font-size: 13px;
+}
+
+.product-price {
+  font-weight: 600;
+  white-space: nowrap;
+  margin-left: 12px;
+}
+
+.screen {
+  padding-top: 4px;
+}
+
+.field {
+  margin-bottom: 14px;
+}
+
+.field label {
+  display: block;
+  font-size: 13px;
+  color: var(--hint);
+  margin-bottom: 6px;
+}
+
+.field input {
+  width: 100%;
+  padding: 12px;
+  border-radius: 10px;
+  border: 1px solid var(--secondary-bg);
+  background: var(--secondary-bg);
+  color: var(--text);
+  font-size: 15px;
+}
+
+.card-box {
+  background: var(--secondary-bg);
+  border-radius: 14px;
+  padding: 16px;
+  margin: 14px 0;
+}
+
+.card-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 4px 0;
+  font-size: 14px;
+}
+
+.card-row .label {
+  color: var(--hint);
+}
+
+.card-number {
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  margin: 6px 0;
+}
+
+.back-link {
+  background: none;
+  border: none;
+  color: var(--link);
+  font-size: 15px;
+  padding: 0 0 12px;
+  cursor: pointer;
+}
+
+.upload-box {
+  border: 2px dashed var(--secondary-bg);
+  border-radius: 14px;
+  padding: 20px;
+  text-align: center;
+  color: var(--hint);
+  margin: 14px 0;
+}
+
+.order-row {
+  background: var(--secondary-bg);
+  border-radius: 14px;
+  padding: 12px 14px;
+  margin-bottom: 10px;
+}
+
+.order-row .status {
+  color: var(--link);
+  font-size: 13px;
+  margin-top: 4px;
+}
+
+.status-banner {
+  background: var(--secondary-bg);
+  border-radius: 14px;
+  padding: 18px;
+  text-align: center;
+  margin-top: 16px;
+}
+
+.muted {
+  color: var(--hint);
+  font-size: 13px;
+}
+
+.bottom-tabs {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  background: var(--bg);
+  border-top: 1px solid var(--secondary-bg);
+  padding: 8px 0 calc(8px + env(safe-area-inset-bottom));
+}
+
+.bottom-tabs button {
+  flex: 1;
+  background: none;
+  border: none;
+  color: var(--hint);
+  font-size: 13px;
+  padding: 6px 0;
+  cursor: pointer;
+}
+
+.bottom-tabs button.active {
+  color: var(--link);
+  font-weight: 600;
+}
