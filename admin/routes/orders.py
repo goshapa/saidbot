@@ -4,11 +4,12 @@ from sqlalchemy import func, select
 from sqlalchemy.orm import selectinload
 
 from app.db import async_session
-from app.models import ORDER_STATUS_LABELS, Order, OrderStatus
+from app.models import ORDER_STATUS_LABELS, Order, OrderStatus, Product, ProductType
 from app.config import settings
 from admin.auth import require_login
 from admin.templating import templates
 from admin.tg import get_file_bytes, send_message
+from bot.services.fragment import fragment_stars_link
 
 router = APIRouter()
 
@@ -75,13 +76,31 @@ async def order_detail(request: Request, order_id: int):
     async with async_session() as session:
         result = await session.execute(
             select(Order)
-            .options(selectinload(Order.user), selectinload(Order.product))
+            .options(
+                selectinload(Order.user),
+                selectinload(Order.product).selectinload(Product.category),
+            )
             .where(Order.id == order_id)
         )
         order = result.scalar_one_or_none()
 
     if order is None:
         return RedirectResponse(url="/", status_code=303)
+
+    fragment_link = None
+    product = order.product
+    if (
+        product is not None
+        and product.category is not None
+        and product.category.type == ProductType.STARS.value
+        and order.recipient_info
+    ):
+        quantity = order.quantity if product.is_variable and order.quantity else (product.amount or order.quantity)
+        if quantity:
+            fragment_link = {
+                "url": fragment_stars_link(order.recipient_info, quantity),
+                "quantity": quantity,
+            }
 
     return templates.TemplateResponse(
         "order_detail.html",
@@ -91,6 +110,7 @@ async def order_detail(request: Request, order_id: int):
             "order": order,
             "status_labels": ORDER_STATUS_LABELS,
             "currency": settings.CURRENCY,
+            "fragment_link": fragment_link,
         },
     )
 

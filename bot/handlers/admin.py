@@ -1,10 +1,11 @@
 from aiogram import F, Router
-from aiogram.types import CallbackQuery
+from aiogram.types import CallbackQuery, InlineKeyboardButton, InlineKeyboardMarkup
 from sqlalchemy.orm import selectinload
 
 from app.config import settings
 from app.db import async_session
-from app.models import Order, OrderStatus
+from app.models import Order, OrderStatus, Product, ProductType
+from bot.services.fragment import fragment_stars_link
 from bot.services.notify import notify_user_status
 from sqlalchemy import select
 
@@ -18,9 +19,38 @@ def _is_admin(user_id: int) -> bool:
 async def _load_order(order_id: int) -> Order | None:
     async with async_session() as session:
         result = await session.execute(
-            select(Order).options(selectinload(Order.user), selectinload(Order.product)).where(Order.id == order_id)
+            select(Order)
+            .options(
+                selectinload(Order.user),
+                selectinload(Order.product).selectinload(Product.category),
+            )
+            .where(Order.id == order_id)
         )
         return result.scalar_one_or_none()
+
+
+async def _maybe_send_fragment_link(callback: CallbackQuery, order: Order) -> None:
+    product = order.product
+    if product is None or product.category is None:
+        return
+    if product.category.type != ProductType.STARS.value:
+        return
+    if not order.recipient_info:
+        return
+
+    quantity = order.quantity if product.is_variable and order.quantity else (product.amount or order.quantity)
+    if not quantity:
+        return
+
+    link = fragment_stars_link(order.recipient_info, quantity)
+    kb = InlineKeyboardMarkup(
+        inline_keyboard=[[InlineKeyboardButton(text=f"🌟 Купить {quantity} Stars на Fragment", url=link)]]
+    )
+    await callback.message.answer(
+        f"Заказ №{order.id}: получатель @{order.recipient_info.lstrip('@')}, {quantity} звёзд.\n"
+        "Нажмите кнопку ниже, чтобы сразу открыть покупку на Fragment с готовыми данными.",
+        reply_markup=kb,
+    )
 
 
 @router.callback_query(F.data.startswith("adm_approve:"))
@@ -45,6 +75,7 @@ async def admin_approve(callback: CallbackQuery) -> None:
     ) if callback.message.caption else await callback.message.edit_text(
         (callback.message.text or "") + "\n\n✅ Оплата подтверждена"
     )
+    await _maybe_send_fragment_link(callback, order)
     await callback.answer("Оплата подтверждена")
 
 

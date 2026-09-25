@@ -18,6 +18,15 @@
     <img src="/orders/{{ order.id }}/receipt" class="img-fluid border" style="max-width: 400px;">
     {% endif %}
 
+    {% if fragment_link %}
+    <div class="alert alert-info mt-3">
+      <strong>{{ fragment_link.quantity }} Stars</strong> для @{{ order.recipient_info.lstrip("@") }} —
+      <a href="{{ fragment_link.url }}" target="_blank" rel="noopener" class="btn btn-sm btn-warning ms-2">
+        🌟 Купить на Fragment
+      </a>
+    </div>
+    {% endif %}
+
     <form method="post" action="/orders/{{ order.id }}/status" class="mt-4 d-flex gap-2">
       <button name="action" value="approve" class="btn btn-success">Подтвердить оплату</button>
       <button name="action" value="reject" class="btn btn-danger">Отклонить</button>
