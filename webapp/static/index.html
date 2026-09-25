@@ -8,56 +8,127 @@
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
 </head>
 <body>
-  <div id="screen-catalog" class="screen">
-    <h2>Каталог</h2>
-    <div id="tabs" class="tabs"></div>
-    <div id="products"></div>
+
+  <div id="splash">
+    <div class="logo-circle">🛍</div>
+    <div class="spinner"></div>
   </div>
 
-  <div id="screen-order" class="screen hidden">
-    <button class="back-link" data-back="catalog">&larr; Назад</button>
-    <h2 id="order-title"></h2>
-    <div id="order-recipient-field" class="field hidden">
-      <label id="order-recipient-label"></label>
-      <input id="order-recipient-input" type="text" placeholder="Введите данные">
+  <div id="app" class="hidden">
+
+    <div class="topbar">
+      <div class="topbar-user">
+        <div class="avatar" id="topbar-avatar">🙂</div>
+        <div>
+          <div class="topbar-greeting">Привет 👋</div>
+          <div class="topbar-name" id="topbar-name">Гость</div>
+        </div>
+      </div>
+      <button class="icon-btn" id="btn-refresh">↻</button>
     </div>
-    <p class="muted">Сумма к оплате: <strong id="order-price"></strong></p>
-    <button id="btn-create-order" class="tab active" style="width:100%; padding:14px; border-radius:12px;">Оформить заказ</button>
-  </div>
 
-  <div id="screen-payment" class="screen hidden">
-    <button class="back-link" data-back="catalog">&larr; В каталог</button>
-    <h2>Оплата заказа №<span id="pay-order-id"></span></h2>
-    <p>Сумма: <strong id="pay-amount"></strong></p>
-    <div class="card-box">
-      <div class="card-row"><span class="label">Банк</span><span id="pay-bank"></span></div>
-      <div class="card-number" id="pay-card-number"></div>
-      <div class="card-row"><span class="label">Получатель</span><span id="pay-holder"></span></div>
+    <!-- HOME -->
+    <div id="screen-home" class="screen">
+      <div class="banner">
+        <h2>⭐ Stars, 💎 Premium и донаты в игры</h2>
+        <p>Быстро, безопасно, с подтверждением в течение пары минут</p>
+        <div class="banner-emoji">🚀</div>
+      </div>
+
+      <div class="section-header">
+        <h3>Категории</h3>
+      </div>
+      <div id="home-categories" class="cat-grid"></div>
+
+      <div class="section-header">
+        <h3>Популярное</h3>
+        <button class="section-link" data-nav="catalog">Всё →</button>
+      </div>
+      <div id="home-popular" class="product-grid"></div>
     </div>
-    <p class="muted">Переведите указанную сумму на карту, затем загрузите скриншот/фото чека.</p>
-    <div class="upload-box" id="upload-box">
-      📎 Нажмите, чтобы выбрать фото чека
-      <input type="file" id="receipt-input" accept="image/*" style="display:none">
+
+    <!-- CATALOG -->
+    <div id="screen-catalog" class="screen hidden">
+      <div class="section-header" style="margin-top:0;">
+        <h3>Каталог</h3>
+      </div>
+      <div id="tabs" class="tabs"></div>
+      <div id="products" class="product-grid"></div>
     </div>
-    <button id="btn-send-receipt" class="tab active" style="width:100%; padding:14px; border-radius:12px;" disabled>Отправить чек</button>
-  </div>
 
-  <div id="screen-done" class="screen hidden">
-    <div class="status-banner">
-      <h2>✅ Чек отправлен</h2>
-      <p class="muted">Администратор проверит оплату и подтвердит заказ. Статус можно посмотреть во вкладке «Заказы».</p>
+    <!-- ORDER (recipient) -->
+    <div id="screen-order" class="screen hidden">
+      <button class="back-link" data-back="catalog">← Назад</button>
+      <div class="panel">
+        <h3 id="order-title" style="margin-bottom:10px;"></h3>
+        <div id="order-recipient-field" class="field hidden">
+          <label id="order-recipient-label"></label>
+          <input id="order-recipient-input" type="text" placeholder="Введите данные">
+        </div>
+        <div class="row"><span class="label">Сумма к оплате</span><span class="value" id="order-price"></span></div>
+      </div>
+      <button id="btn-create-order" class="primary-btn">Оформить заказ</button>
     </div>
-    <button class="back-link" data-back="catalog">&larr; В каталог</button>
+
+    <!-- PAYMENT -->
+    <div id="screen-payment" class="screen hidden">
+      <button class="back-link" data-back="home">← В магазин</button>
+      <div class="panel">
+        <div class="row"><span class="label">Заказ</span><span class="value">№<span id="pay-order-id"></span></span></div>
+        <div class="row"><span class="label">Сумма</span><span class="value" id="pay-amount"></span></div>
+      </div>
+      <div class="panel">
+        <div class="row"><span class="label">Банк</span><span class="value" id="pay-bank"></span></div>
+        <div class="card-number" id="pay-card-number"></div>
+        <div class="copy-hint">Нажмите на номер, чтобы скопировать</div>
+        <div class="row" style="margin-top:8px;"><span class="label">Получатель</span><span class="value" id="pay-holder"></span></div>
+      </div>
+      <p class="muted">Переведите сумму на карту выше, затем загрузите скриншот/фото чека.</p>
+      <div class="upload-box" id="upload-box">
+        📎 Нажмите, чтобы выбрать фото чека
+        <input type="file" id="receipt-input" accept="image/*" style="display:none">
+      </div>
+      <button id="btn-send-receipt" class="primary-btn" disabled>Отправить чек</button>
+    </div>
+
+    <!-- DONE -->
+    <div id="screen-done" class="screen hidden">
+      <div class="status-banner">
+        <div class="big-emoji">✅</div>
+        <h3>Чек отправлен</h3>
+        <p class="muted">Администратор проверит оплату и подтвердит заказ. Статус можно посмотреть во вкладке «Заказы».</p>
+      </div>
+      <button class="back-link" data-back="home" style="margin-top:16px;">← В магазин</button>
+    </div>
+
+    <!-- ORDERS -->
+    <div id="screen-orders" class="screen hidden">
+      <div class="section-header" style="margin-top:0;">
+        <h3>Мои заказы</h3>
+      </div>
+      <div id="orders-list"></div>
+    </div>
+
+    <!-- PROFILE -->
+    <div id="screen-profile" class="screen hidden">
+      <div class="profile-header">
+        <div class="avatar" id="profile-avatar">🙂</div>
+        <div class="name" id="profile-name">Гость</div>
+        <div class="username" id="profile-username"></div>
+      </div>
+      <div class="profile-actions">
+        <div class="profile-action" data-nav="orders"><span class="emoji">📦</span> Мои заказы</div>
+        <div class="profile-action" id="btn-support"><span class="emoji">🆘</span> Поддержка</div>
+      </div>
+    </div>
+
   </div>
 
-  <div id="screen-orders" class="screen hidden">
-    <h2>Мои заказы</h2>
-    <div id="orders-list"></div>
-  </div>
-
-  <div class="bottom-tabs">
-    <button id="nav-catalog" class="active">🛍 Каталог</button>
-    <button id="nav-orders">📦 Заказы</button>
+  <div class="bottom-nav">
+    <button class="nav-btn active" data-nav="home"><span class="nav-emoji">🏠</span>Главная</button>
+    <button class="nav-btn" data-nav="catalog"><span class="nav-emoji">🛍</span>Каталог</button>
+    <button class="nav-btn" data-nav="orders"><span class="nav-emoji">📦</span>Заказы</button>
+    <button class="nav-btn" data-nav="profile"><span class="nav-emoji">👤</span>Профиль</button>
   </div>
 
   <script src="/app.js"></script>

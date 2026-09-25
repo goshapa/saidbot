@@ -2,9 +2,12 @@ const tg = window.Telegram?.WebApp;
 if (tg) {
   tg.ready();
   tg.expand();
+  try { tg.setHeaderColor("#0a0e1a"); } catch (e) {}
+  try { tg.setBackgroundColor("#0a0e1a"); } catch (e) {}
 }
 
 const initData = tg?.initData || "";
+const tgUser = tg?.initDataUnsafe?.user || null;
 
 const STATUS_LABELS = {
   new: "🕓 Ожидает оплаты",
@@ -15,6 +18,8 @@ const STATUS_LABELS = {
   cancelled: "🚫 Отменён",
 };
 
+const CATEGORY_EMOJI = { stars: "⭐", premium: "💎", game: "🎮" };
+
 let catalog = [];
 let activeCategoryId = null;
 let selectedProduct = null;
@@ -24,6 +29,11 @@ let currentOrderId = null;
 
 function formatMoney(value) {
   return Math.round(value).toLocaleString("ru-RU") + " " + currency;
+}
+
+function alertMsg(text) {
+  if (tg?.showAlert) tg.showAlert(text);
+  else alert(text);
 }
 
 async function api(path, options = {}) {
@@ -37,11 +47,65 @@ async function api(path, options = {}) {
   return resp.json();
 }
 
+function setupUserUI() {
+  const initials = (tgUser?.first_name || "?").charAt(0).toUpperCase();
+  const name = [tgUser?.first_name, tgUser?.last_name].filter(Boolean).join(" ") || "Гость";
+  const username = tgUser?.username ? "@" + tgUser.username : "";
+
+  document.getElementById("topbar-name").textContent = name;
+  document.getElementById("profile-name").textContent = name;
+  document.getElementById("profile-username").textContent = username;
+
+  [document.getElementById("topbar-avatar"), document.getElementById("profile-avatar")].forEach((el) => {
+    if (tgUser?.photo_url) {
+      el.innerHTML = `<img src="${tgUser.photo_url}" alt="">`;
+    } else {
+      el.textContent = initials;
+    }
+  });
+}
+
 function showScreen(id) {
   document.querySelectorAll(".screen").forEach((el) => el.classList.add("hidden"));
-  document.getElementById(id).classList.remove("hidden");
-  document.getElementById("nav-catalog").classList.toggle("active", id === "screen-catalog");
-  document.getElementById("nav-orders").classList.toggle("active", id === "screen-orders");
+  document.getElementById("screen-" + id).classList.remove("hidden");
+  document.querySelectorAll(".nav-btn").forEach((btn) => {
+    btn.classList.toggle("active", btn.dataset.nav === id);
+  });
+  if (id === "orders") loadOrders();
+}
+
+function renderHome() {
+  const catGrid = document.getElementById("home-categories");
+  catGrid.innerHTML = "";
+  catalog.forEach((cat) => {
+    const tile = document.createElement("div");
+    tile.className = "cat-tile";
+    tile.innerHTML = `<div class="emoji">${CATEGORY_EMOJI[cat.type] || "🛍"}</div><div class="label">${cat.title}</div>`;
+    tile.onclick = () => {
+      activeCategoryId = cat.id;
+      showScreen("catalog");
+      renderTabs();
+      renderProducts();
+    };
+    catGrid.appendChild(tile);
+  });
+
+  const popular = document.getElementById("home-popular");
+  popular.innerHTML = "";
+  const popularProducts = catalog.flatMap((c) => c.products).slice(0, 4);
+  popularProducts.forEach((product) => popular.appendChild(productTile(product)));
+}
+
+function productTile(product) {
+  const tile = document.createElement("div");
+  tile.className = "product-tile";
+  tile.innerHTML = `
+    <div class="icon">🎁</div>
+    <div class="title">${product.title}</div>
+    <div class="price">${formatMoney(product.price)}</div>
+  `;
+  tile.onclick = () => openOrderScreen(product);
+  return tile;
 }
 
 function renderTabs() {
@@ -50,7 +114,7 @@ function renderTabs() {
   catalog.forEach((cat) => {
     const btn = document.createElement("button");
     btn.className = "tab" + (cat.id === activeCategoryId ? " active" : "");
-    btn.textContent = cat.title;
+    btn.textContent = (CATEGORY_EMOJI[cat.type] || "") + " " + cat.title;
     btn.onclick = () => {
       activeCategoryId = cat.id;
       renderTabs();
@@ -65,20 +129,7 @@ function renderProducts() {
   container.innerHTML = "";
   const category = catalog.find((c) => c.id === activeCategoryId);
   if (!category) return;
-
-  category.products.forEach((product) => {
-    const card = document.createElement("div");
-    card.className = "product-card";
-    card.innerHTML = `
-      <div>
-        <div class="product-title">${product.title}</div>
-        ${product.description ? `<div class="product-desc">${product.description}</div>` : ""}
-      </div>
-      <div class="product-price">${formatMoney(product.price)}</div>
-    `;
-    card.onclick = () => openOrderScreen(product);
-    container.appendChild(card);
-  });
+  category.products.forEach((product) => container.appendChild(productTile(product)));
 }
 
 function openOrderScreen(product) {
@@ -98,14 +149,14 @@ function openOrderScreen(product) {
     field.classList.add("hidden");
   }
 
-  showScreen("screen-order");
+  showScreen("order");
 }
 
 document.getElementById("btn-create-order").onclick = async () => {
   if (!selectedProduct) return;
   const recipientInput = document.getElementById("order-recipient-input");
   if (selectedProduct.requires_recipient && !recipientInput.value.trim()) {
-    tg?.showAlert ? tg.showAlert("Укажите получателя") : alert("Укажите получателя");
+    alertMsg("Укажите получателя");
     return;
   }
 
@@ -124,11 +175,20 @@ document.getElementById("btn-create-order").onclick = async () => {
     document.getElementById("pay-holder").textContent = order.card.holder_name;
     receiptFile = null;
     document.getElementById("btn-send-receipt").disabled = true;
-    document.getElementById("upload-box").textContent = "📎 Нажмите, чтобы выбрать фото чека";
-    showScreen("screen-payment");
+    const box = document.getElementById("upload-box");
+    box.textContent = "📎 Нажмите, чтобы выбрать фото чека";
+    box.classList.remove("filled");
+    showScreen("payment");
   } catch (e) {
-    tg?.showAlert ? tg.showAlert(e.message) : alert(e.message);
+    alertMsg(e.message);
   }
+};
+
+document.getElementById("pay-card-number").onclick = () => {
+  const text = document.getElementById("pay-card-number").textContent;
+  navigator.clipboard?.writeText(text.replace(/\s/g, "")).then(() => {
+    if (tg?.HapticFeedback) tg.HapticFeedback.notificationOccurred("success");
+  }).catch(() => {});
 };
 
 document.getElementById("upload-box").onclick = () => {
@@ -139,7 +199,9 @@ document.getElementById("receipt-input").onchange = (e) => {
   const file = e.target.files[0];
   if (!file) return;
   receiptFile = file;
-  document.getElementById("upload-box").textContent = "✅ Файл выбран: " + file.name;
+  const box = document.getElementById("upload-box");
+  box.textContent = "✅ Файл выбран: " + file.name;
+  box.classList.add("filled");
   document.getElementById("btn-send-receipt").disabled = false;
 };
 
@@ -150,9 +212,9 @@ document.getElementById("btn-send-receipt").onclick = async () => {
 
   try {
     await api(`/api/orders/${currentOrderId}/receipt`, { method: "POST", body: formData });
-    showScreen("screen-done");
+    showScreen("done");
   } catch (e) {
-    tg?.showAlert ? tg.showAlert(e.message) : alert(e.message);
+    alertMsg(e.message);
   }
 };
 
@@ -162,17 +224,22 @@ async function loadOrders() {
   try {
     const orders = await api("/api/me/orders");
     if (!orders.length) {
-      list.innerHTML = '<p class="muted">У вас пока нет заказов.</p>';
+      list.innerHTML = `
+        <div class="empty-state">
+          <div class="emoji">📦</div>
+          <div>Нет заказов</div>
+          <div class="muted">Ваш первый заказ появится здесь</div>
+        </div>`;
       return;
     }
     list.innerHTML = "";
     orders.forEach((o) => {
+      const pillClass = o.status === "completed" ? "done" : o.status === "rejected" || o.status === "cancelled" ? "rejected" : "";
       const row = document.createElement("div");
       row.className = "order-row";
       row.innerHTML = `
-        <div><strong>№${o.id}</strong> · ${o.product_title}</div>
-        <div>${formatMoney(o.total_price)}</div>
-        <div class="status">${STATUS_LABELS[o.status] || o.status}</div>
+        <div class="top"><span>№${o.id} · ${o.product_title}</span><span>${formatMoney(o.total_price)}</span></div>
+        <span class="status-pill ${pillClass}">${STATUS_LABELS[o.status] || o.status}</span>
       `;
       list.appendChild(row);
     });
@@ -182,21 +249,33 @@ async function loadOrders() {
 }
 
 document.querySelectorAll("[data-back]").forEach((btn) => {
-  btn.onclick = () => showScreen("screen-" + btn.dataset.back);
+  btn.onclick = () => showScreen(btn.dataset.back);
 });
 
-document.getElementById("nav-catalog").onclick = () => showScreen("screen-catalog");
-document.getElementById("nav-orders").onclick = () => {
-  showScreen("screen-orders");
-  loadOrders();
+document.querySelectorAll("[data-nav]").forEach((btn) => {
+  btn.onclick = () => showScreen(btn.dataset.nav);
+});
+
+document.getElementById("btn-refresh").onclick = () => location.reload();
+
+document.getElementById("btn-support").onclick = () => {
+  if (tg?.openTelegramLink) {
+    alertMsg("Напишите вопрос в чат бота — раздел «Поддержка».");
+  } else {
+    alertMsg("Напишите вопрос в чат бота — раздел «Поддержка».");
+  }
 };
 
 async function init() {
+  setupUserUI();
+
   try {
     const me = await api("/api/me");
     currency = me.currency;
   } catch (e) {
-    document.getElementById("products").innerHTML =
+    document.getElementById("splash").classList.add("hidden");
+    document.getElementById("app").classList.remove("hidden");
+    document.getElementById("home-popular").innerHTML =
       `<p class="muted">Не удалось авторизоваться: ${e.message}. Откройте магазин через кнопку в боте.</p>`;
     return;
   }
@@ -204,17 +283,13 @@ async function init() {
   try {
     catalog = await api("/api/catalog");
   } catch (e) {
-    document.getElementById("products").innerHTML = `<p class="muted">Ошибка загрузки каталога.</p>`;
-    return;
+    catalog = [];
   }
 
-  if (catalog.length) {
-    activeCategoryId = catalog[0].id;
-    renderTabs();
-    renderProducts();
-  } else {
-    document.getElementById("products").innerHTML = '<p class="muted">Товаров пока нет.</p>';
-  }
+  renderHome();
+
+  document.getElementById("splash").classList.add("hidden");
+  document.getElementById("app").classList.remove("hidden");
 }
 
 init();
