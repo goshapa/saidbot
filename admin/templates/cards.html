@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block title %}Реквизиты — SaidBot Admin{% endblock %}
+{% block content %}
+<h4 class="mb-3">Реквизиты для оплаты</h4>
+
+<table class="table bg-white">
+  <thead><tr><th>Банк</th><th>Номер карты</th><th>Получатель</th><th>Активна</th><th></th></tr></thead>
+  <tbody>
+    {% for card in cards %}
+    <tr>
+      <td>{{ card.bank_name }}</td>
+      <td>{{ card.card_number }}</td>
+      <td>{{ card.holder_name }}</td>
+      <td>{{ "Да" if card.is_active else "Нет" }}</td>
+      <td>
+        <form method="post" action="/cards/{{ card.id }}/toggle" class="d-inline">
+          <button class="btn btn-sm btn-outline-secondary">{{ "Выключить" if card.is_active else "Включить" }}</button>
+        </form>
+        <form method="post" action="/cards/{{ card.id }}/delete" class="d-inline" onsubmit="return confirm('Удалить карту?');">
+          <button class="btn btn-sm btn-outline-danger">Удалить</button>
+        </form>
+      </td>
+    </tr>
+    {% else %}
+    <tr><td colspan="5" class="text-center text-muted">Карт нет</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+<div class="card">
+  <div class="card-header"><strong>Добавить карту</strong></div>
+  <div class="card-body">
+    <form method="post" action="/cards/create" class="row g-3">
+      <div class="col-md-3">
+        <label class="form-label">Банк</label>
+        <input type="text" name="bank_name" class="form-control" required>
+      </div>
+      <div class="col-md-4">
+        <label class="form-label">Номер карты</label>
+        <input type="text" name="card_number" class="form-control" required>
+      </div>
+      <div class="col-md-3">
+        <label class="form-label">Получатель</label>
+        <input type="text" name="holder_name" class="form-control" required>
+      </div>
+      <div class="col-md-2 d-flex align-items-end">
+        <button type="submit" class="btn btn-primary w-100">Добавить</button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,122 @@
+from fastapi import APIRouter, Form, Request
+from fastapi.responses import RedirectResponse
+from sqlalchemy import select
+from sqlalchemy.orm import selectinload
+
+from app.config import settings
+from app.db import async_session
+from app.models import Category, Product
+from admin.auth import require_login
+from admin.templating import templates
+
+router = APIRouter()
+
+
+@router.get("/products")
+async def list_products(request: Request):
+    redirect = require_login(request)
+    if redirect:
+        return redirect
+
+    async with async_session() as session:
+        result = await session.execute(
+            select(Category).options(selectinload(Category.products)).order_by(Category.sort_order)
+        )
+        categories = list(result.scalars())
+
+    return templates.TemplateResponse(
+        "products.html",
+        {"request": request, "logged_in": True, "categories": categories, "currency": settings.CURRENCY},
+    )
+
+
+@router.post("/products/create")
+async def create_product(
+    request: Request,
+    category_id: int = Form(...),
+    title: str = Form(...),
+    price: float = Form(...),
+    amount: int | None = Form(None),
+    recipient_label: str = Form(""),
+    requires_recipient: bool = Form(False),
+):
+    redirect = require_login(request)
+    if redirect:
+        return redirect
+
+    async with async_session() as session:
+        product = Product(
+            category_id=category_id,
+            title=title,
+            price=price,
+            amount=amount,
+            recipient_label=recipient_label or "Telegram-username получателя (без @)",
+            requires_recipient=requires_recipient,
+        )
+        session.add(product)
+        await session.commit()
+
+    return RedirectResponse(url="/products", status_code=303)
+
+
+@router.get("/products/{product_id}/edit")
+async def edit_product_form(request: Request, product_id: int):
+    redirect = require_login(request)
+    if redirect:
+        return redirect
+
+    async with async_session() as session:
+        product = await session.get(Product, product_id)
+
+    if product is None:
+        return RedirectResponse(url="/products", status_code=303)
+
+    return templates.TemplateResponse(
+        "product_form.html", {"request": request, "logged_in": True, "product": product}
+    )
+
+
+@router.post("/products/{product_id}/edit")
+async def edit_product(
+    request: Request,
+    product_id: int,
+    title: str = Form(...),
+    price: float = Form(...),
+    amount: int | None = Form(None),
+    recipient_label: str = Form(""),
+    requires_recipient: bool = Form(False),
+    is_active: bool = Form(False),
+):
+    redirect = require_login(request)
+    if redirect:
+        return redirect
+
+    async with async_session() as session:
+        product = await session.get(Product, product_id)
+        if product is None:
+            return RedirectResponse(url="/products", status_code=303)
+
+        product.title = title
+        product.price = price
+        product.amount = amount
+        product.recipient_label = recipient_label or product.recipient_label
+        product.requires_recipient = requires_recipient
+        product.is_active = is_active
+        await session.commit()
+
+    return RedirectResponse(url="/products", status_code=303)
+
+
+@router.post("/products/{product_id}/delete")
+async def delete_product(request: Request, product_id: int):
+    redirect = require_login(request)
+    if redirect:
+        return redirect
+
+    async with async_session() as session:
+        product = await session.get(Product, product_id)
+        if product is not None:
+            await session.delete(product)
+            await session.commit()
+
+    return RedirectResponse(url="/products", status_code=303)

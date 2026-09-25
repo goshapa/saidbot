@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% block title %}Заказы — SaidBot Admin{% endblock %}
+{% block content %}
+<div class="row mb-4">
+  <div class="col-md-3">
+    <div class="card"><div class="card-body">
+      <div class="text-muted small">Всего заказов</div>
+      <div class="fs-3">{{ stats.total }}</div>
+    </div></div>
+  </div>
+  <div class="col-md-3">
+    <div class="card"><div class="card-body">
+      <div class="text-muted small">На проверке</div>
+      <div class="fs-3">{{ stats.awaiting_review }}</div>
+    </div></div>
+  </div>
+  <div class="col-md-3">
+    <div class="card"><div class="card-body">
+      <div class="text-muted small">Выполнено</div>
+      <div class="fs-3">{{ stats.completed }}</div>
+    </div></div>
+  </div>
+  <div class="col-md-3">
+    <div class="card"><div class="card-body">
+      <div class="text-muted small">Выручка (подтверждено)</div>
+      <div class="fs-3">{{ "{:,.0f}".format(stats.revenue).replace(",", " ") }} {{ currency }}</div>
+    </div></div>
+  </div>
+</div>
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h4 class="m-0">Заказы</h4>
+  <form class="d-flex" method="get">
+    <select name="status" class="form-select form-select-sm" onchange="this.form.submit()">
+      <option value="">Все статусы</option>
+      {% for value, label in statuses.items() %}
+      <option value="{{ value }}" {% if value == current_status %}selected{% endif %}>{{ label }}</option>
+      {% endfor %}
+    </select>
+  </form>
+</div>
+
+<table class="table table-bordered bg-white">
+  <thead>
+    <tr>
+      <th>№</th><th>Товар</th><th>Покупатель</th><th>Сумма</th><th>Статус</th><th>Дата</th><th></th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for order in orders %}
+    <tr>
+      <td>{{ order.id }}</td>
+      <td>{{ order.product.title }}</td>
+      <td>@{{ order.user.username or order.user.tg_id }}</td>
+      <td>{{ "{:,.0f}".format(order.total_price).replace(",", " ") }} {{ currency }}</td>
+      <td>{{ status_labels.get(order.status, order.status) }}</td>
+      <td>{{ order.created_at.strftime("%d.%m.%Y %H:%M") }}</td>
+      <td><a href="/orders/{{ order.id }}" class="btn btn-sm btn-outline-primary">Открыть</a></td>
+    </tr>
+    {% else %}
+    <tr><td colspan="7" class="text-center text-muted">Заказов нет</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

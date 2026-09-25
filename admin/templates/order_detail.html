@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block title %}Заказ №{{ order.id }} — SaidBot Admin{% endblock %}
+{% block content %}
+<a href="/" class="btn btn-link px-0">&larr; Ко всем заказам</a>
+<div class="card">
+  <div class="card-body">
+    <h4>Заказ №{{ order.id }}</h4>
+    <p><strong>Товар:</strong> {{ order.product.title }}</p>
+    <p><strong>Сумма:</strong> {{ "{:,.0f}".format(order.total_price).replace(",", " ") }} {{ currency }}</p>
+    <p><strong>Покупатель:</strong> @{{ order.user.username or order.user.tg_id }} (tg_id {{ order.user.tg_id }})</p>
+    {% if order.recipient_info %}<p><strong>Получатель:</strong> {{ order.recipient_info }}</p>{% endif %}
+    <p><strong>Статус:</strong> {{ status_labels.get(order.status, order.status) }}</p>
+    <p><strong>Создан:</strong> {{ order.created_at.strftime("%d.%m.%Y %H:%M") }}</p>
+    {% if order.admin_comment %}<p><strong>Комментарий:</strong> {{ order.admin_comment }}</p>{% endif %}
+
+    {% if order.receipt_file_id %}
+    <p><strong>Чек об оплате:</strong></p>
+    <img src="/orders/{{ order.id }}/receipt" class="img-fluid border" style="max-width: 400px;">
+    {% endif %}
+
+    <form method="post" action="/orders/{{ order.id }}/status" class="mt-4 d-flex gap-2">
+      <button name="action" value="approve" class="btn btn-success">Подтвердить оплату</button>
+      <button name="action" value="reject" class="btn btn-danger">Отклонить</button>
+      <button name="action" value="complete" class="btn btn-primary">Отметить выполненным</button>
+    </form>
+  </div>
+</div>
+{% endblock %}
