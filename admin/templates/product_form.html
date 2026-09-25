@@ -19,6 +19,13 @@
         <input type="number" step="0.01" name="price" id="price-input" class="form-control" value="{{ product.price }}">
       </div>
       <div class="col-md-8">
+        <label class="form-label">Ссылка на изображение (необязательно)</label>
+        <input type="url" name="image_url" class="form-control" value="{{ product.image_url or '' }}" placeholder="https://.../icon.png">
+        {% if product.image_url %}
+        <img src="{{ product.image_url }}" alt="" class="mt-2" style="width:56px;height:56px;object-fit:cover;border-radius:10px;">
+        {% endif %}
+      </div>
+      <div class="col-md-8">
         <label class="form-label">Что спрашивать у покупателя</label>
         <input type="text" name="recipient_label" class="form-control" value="{{ product.recipient_label }}">
       </div>

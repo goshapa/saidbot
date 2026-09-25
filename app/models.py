@@ -75,6 +75,7 @@ class Product(Base):
     description: Mapped[str | None] = mapped_column(Text, nullable=True)
     amount: Mapped[int | None] = mapped_column(Integer, nullable=True)
     price: Mapped[float] = mapped_column(Float)
+    image_url: Mapped[str | None] = mapped_column(String(1024), nullable=True)
     is_variable: Mapped[bool] = mapped_column(Boolean, default=False)
     unit_price: Mapped[float | None] = mapped_column(Float, nullable=True)
     min_quantity: Mapped[int] = mapped_column(Integer, default=1)

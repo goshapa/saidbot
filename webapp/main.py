@@ -69,6 +69,7 @@ async def get_catalog():
                     "description": p.description,
                     "amount": p.amount,
                     "price": p.price,
+                    "image_url": p.image_url,
                     "is_variable": p.is_variable,
                     "unit_price": p.unit_price,
                     "min_quantity": p.min_quantity,

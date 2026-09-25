@@ -42,6 +42,7 @@ async def create_product(
     is_variable: bool = Form(False),
     unit_price: float | None = Form(None),
     min_quantity: int = Form(1),
+    image_url: str = Form(""),
 ):
     redirect = require_login(request)
     if redirect:
@@ -55,6 +56,7 @@ async def create_product(
             category_id=category_id,
             title=title,
             price=price,
+            image_url=image_url.strip() or None,
             amount=amount,
             recipient_label=recipient_label or "Telegram-username получателя (без @)",
             requires_recipient=requires_recipient,
@@ -98,6 +100,7 @@ async def edit_product(
     is_variable: bool = Form(False),
     unit_price: float | None = Form(None),
     min_quantity: int = Form(1),
+    image_url: str = Form(""),
 ):
     redirect = require_login(request)
     if redirect:
@@ -113,6 +116,7 @@ async def edit_product(
 
         product.title = title
         product.price = price
+        product.image_url = image_url.strip() or None
         product.amount = amount
         product.recipient_label = recipient_label or product.recipient_label
         product.requires_recipient = requires_recipient

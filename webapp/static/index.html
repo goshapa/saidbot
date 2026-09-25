@@ -4,13 +4,12 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>Магазин</title>
-  <link rel="stylesheet" href="/style.css?v=6">
+  <link rel="stylesheet" href="/style.css?v=7">
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
 </head>
 <body>
 
   <div id="splash">
-    <div class="logo-circle">🛍</div>
     <div class="spinner"></div>
   </div>
 
@@ -19,21 +18,17 @@
 
     <div class="topbar">
       <div class="topbar-user">
-        <div class="avatar" id="topbar-avatar">🙂</div>
-        <div>
-          <div class="topbar-greeting">Привет 👋</div>
-          <div class="topbar-name" id="topbar-name">Гость</div>
-        </div>
+        <div class="avatar" id="topbar-avatar"></div>
+        <div class="topbar-name" id="topbar-name">Гость</div>
       </div>
-      <button class="icon-btn" id="btn-refresh">↻</button>
+      <button class="icon-btn" id="btn-refresh"></button>
     </div>
 
     <!-- HOME -->
     <div id="screen-home" class="screen">
-      <div class="banner">
-        <h2>⭐ Stars, 💎 Premium и донаты в игры</h2>
-        <p>Быстро, безопасно, с подтверждением в течение пары минут</p>
-        <div class="banner-emoji">🚀</div>
+      <div class="page-heading">
+        <h2>Магазин</h2>
+        <p>Telegram Stars, Premium и донаты в играх</p>
       </div>
 
       <div class="section-header">
@@ -43,15 +38,15 @@
 
       <div class="section-header">
         <h3>Популярное</h3>
-        <button class="section-link" data-nav="catalog">Всё →</button>
+        <button class="section-link" data-nav="catalog">Все</button>
       </div>
       <div id="home-popular" class="product-grid"></div>
     </div>
 
     <!-- CATALOG -->
     <div id="screen-catalog" class="screen hidden">
-      <div class="section-header" style="margin-top:0;">
-        <h3>Каталог</h3>
+      <div class="page-heading">
+        <h2>Каталог</h2>
       </div>
       <div id="tabs" class="tabs"></div>
       <div id="products" class="product-grid"></div>
@@ -59,9 +54,9 @@
 
     <!-- ORDER (recipient) -->
     <div id="screen-order" class="screen hidden">
-      <button class="back-link" data-back="catalog">← Назад</button>
+      <button class="back-link" data-back="catalog" data-label="Назад"></button>
       <div class="panel">
-        <h3 id="order-title" style="margin-bottom:10px;"></h3>
+        <h3 id="order-title" style="font-size:15px; font-weight:600; margin-bottom:12px;"></h3>
         <div id="order-quantity-field" class="field hidden">
           <label id="order-quantity-label">Количество</label>
           <div id="qty-presets" class="qty-presets"></div>
@@ -78,7 +73,7 @@
 
     <!-- PAYMENT -->
     <div id="screen-payment" class="screen hidden">
-      <button class="back-link" data-back="home">← В магазин</button>
+      <button class="back-link" data-back="home" data-label="В магазин"></button>
       <div class="panel">
         <div class="row"><span class="label">Заказ</span><span class="value">№<span id="pay-order-id"></span></span></div>
         <div class="row"><span class="label">Сумма</span><span class="value" id="pay-amount"></span></div>
@@ -87,12 +82,10 @@
         <div class="row"><span class="label">Банк</span><span class="value" id="pay-bank"></span></div>
         <div class="card-number" id="pay-card-number"></div>
         <div class="copy-hint">Нажмите на номер, чтобы скопировать</div>
-        <div class="row" style="margin-top:8px;"><span class="label">Получатель</span><span class="value" id="pay-holder"></span></div>
+        <div class="row" style="margin-top:10px;"><span class="label">Получатель</span><span class="value" id="pay-holder"></span></div>
       </div>
       <p class="muted">Переведите сумму на карту выше, затем загрузите скриншот/фото чека.</p>
-      <label class="upload-box" id="upload-box" for="receipt-input">
-        📎 Нажмите, чтобы выбрать фото чека
-      </label>
+      <label class="upload-box" id="upload-box" for="receipt-input"><span id="upload-box-icon"></span><span id="upload-box-text">Выбрать фото чека</span></label>
       <input type="file" id="receipt-input" accept="image/*" style="position:absolute; width:1px; height:1px; opacity:0; pointer-events:none;">
       <button id="btn-send-receipt" class="primary-btn" disabled>Отправить чек</button>
     </div>
@@ -100,17 +93,17 @@
     <!-- DONE -->
     <div id="screen-done" class="screen hidden">
       <div class="status-banner">
-        <div class="big-emoji">✅</div>
+        <div class="status-icon" id="done-icon"></div>
         <h3>Чек отправлен</h3>
         <p class="muted">Администратор проверит оплату и подтвердит заказ. Статус можно посмотреть во вкладке «Заказы».</p>
       </div>
-      <button class="back-link" data-back="home" style="margin-top:16px;">← В магазин</button>
+      <button class="back-link" data-back="home" data-label="В магазин" style="margin-top:16px;"></button>
     </div>
 
     <!-- ORDERS -->
     <div id="screen-orders" class="screen hidden">
-      <div class="section-header" style="margin-top:0;">
-        <h3>Мои заказы</h3>
+      <div class="page-heading">
+        <h2>Мои заказы</h2>
       </div>
       <div id="orders-list"></div>
     </div>
@@ -118,26 +111,34 @@
     <!-- PROFILE -->
     <div id="screen-profile" class="screen hidden">
       <div class="profile-header">
-        <div class="avatar" id="profile-avatar">🙂</div>
+        <div class="avatar" id="profile-avatar"></div>
         <div class="name" id="profile-name">Гость</div>
         <div class="username" id="profile-username"></div>
       </div>
       <div class="profile-actions">
-        <div class="profile-action" data-nav="orders"><span class="emoji">📦</span> Мои заказы</div>
-        <div class="profile-action" id="btn-support"><span class="emoji">🆘</span> Поддержка</div>
+        <div class="profile-action" data-nav="orders">
+          <span class="icon" id="profile-orders-icon"></span>
+          <span>Мои заказы</span>
+          <span class="chevron" id="profile-chevron-1"></span>
+        </div>
+        <div class="profile-action" id="btn-support">
+          <span class="icon" id="profile-support-icon"></span>
+          <span>Поддержка</span>
+          <span class="chevron" id="profile-chevron-2"></span>
+        </div>
       </div>
     </div>
 
    </div>
 
    <div class="bottom-nav">
-    <button class="nav-btn active" data-nav="home"><span class="nav-emoji">🏠</span>Главная</button>
-    <button class="nav-btn" data-nav="catalog"><span class="nav-emoji">🛍</span>Каталог</button>
-    <button class="nav-btn" data-nav="orders"><span class="nav-emoji">📦</span>Заказы</button>
-    <button class="nav-btn" data-nav="profile"><span class="nav-emoji">👤</span>Профиль</button>
+    <button class="nav-btn active" data-nav="home" data-icon="home">Главная</button>
+    <button class="nav-btn" data-nav="catalog" data-icon="grid">Каталог</button>
+    <button class="nav-btn" data-nav="orders" data-icon="package">Заказы</button>
+    <button class="nav-btn" data-nav="profile" data-icon="user">Профиль</button>
    </div>
   </div>
 
-  <script src="/app.js?v=6"></script>
+  <script src="/app.js?v=7"></script>
 </body>
 </html>

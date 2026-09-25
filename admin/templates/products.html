@@ -9,10 +9,17 @@
     <strong>{{ category.title }}</strong>
   </div>
   <table class="table mb-0">
-    <thead><tr><th>Название</th><th>Кол-во/срок</th><th>Цена</th><th>Активен</th><th></th></tr></thead>
+    <thead><tr><th></th><th>Название</th><th>Кол-во/срок</th><th>Цена</th><th>Активен</th><th></th></tr></thead>
     <tbody>
       {% for product in category.products %}
       <tr>
+        <td style="width:48px;">
+          {% if product.image_url %}
+          <img src="{{ product.image_url }}" alt="" style="width:36px;height:36px;object-fit:cover;border-radius:8px;">
+          {% else %}
+          <div class="text-muted small">—</div>
+          {% endif %}
+        </td>
         <td>{{ product.title }}</td>
         <td>{{ product.amount or "-" }}</td>
         <td>
@@ -60,6 +67,11 @@
       <div class="col-md-2" id="fixed-price-field">
         <label class="form-label">Цена ({{ currency }})</label>
         <input type="number" step="0.01" name="price" id="price-input" class="form-control">
+      </div>
+      <div class="col-md-8">
+        <label class="form-label">Ссылка на изображение (необязательно)</label>
+        <input type="url" name="image_url" class="form-control" placeholder="https://.../icon.png">
+        <div class="form-text">Для игр — иконка/обложка игры. Для звёзд и Premium можно оставить пустым — будет фирменная иконка.</div>
       </div>
       <div class="col-md-6">
         <label class="form-label">Что спрашивать у покупателя (получатель)</label>

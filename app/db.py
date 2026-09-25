@@ -22,6 +22,7 @@ _COLUMN_MIGRATIONS = [
     "ALTER TABLE products ADD COLUMN is_variable BOOLEAN DEFAULT FALSE",
     "ALTER TABLE products ADD COLUMN unit_price FLOAT",
     "ALTER TABLE products ADD COLUMN min_quantity INTEGER DEFAULT 1",
+    "ALTER TABLE products ADD COLUMN image_url VARCHAR(1024)",
 ]
 
 
