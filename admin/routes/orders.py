@@ -98,7 +98,7 @@ async def order_detail(request: Request, order_id: int):
         quantity = order.quantity if product.is_variable and order.quantity else (product.amount or order.quantity)
         if quantity:
             fragment_link = {
-                "url": fragment_stars_link(order.recipient_info, quantity),
+                "url": fragment_stars_link(quantity),
                 "quantity": quantity,
             }
 

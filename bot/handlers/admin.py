@@ -42,13 +42,13 @@ async def _maybe_send_fragment_link(callback: CallbackQuery, order: Order) -> No
     if not quantity:
         return
 
-    link = fragment_stars_link(order.recipient_info, quantity)
+    link = fragment_stars_link(quantity)
     kb = InlineKeyboardMarkup(
         inline_keyboard=[[InlineKeyboardButton(text=f"🌟 Купить {quantity} Stars на Fragment", url=link)]]
     )
     await callback.message.answer(
         f"Заказ №{order.id}: получатель @{order.recipient_info.lstrip('@')}, {quantity} звёзд.\n"
-        "Нажмите кнопку ниже, чтобы сразу открыть покупку на Fragment с готовыми данными.",
+        "Количество уже подставлено в ссылку — на Fragment останется найти этого получателя вручную.",
         reply_markup=kb,
     )
 

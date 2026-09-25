@@ -1,9 +1,10 @@
-def fragment_stars_link(username: str, quantity: int) -> str:
-    """Deep link to Fragment's "buy stars" page with the recipient and
-    quantity pre-filled, so the admin only has to open it and pay —
-    no manual search. Fragment has no official API for this, this just
-    saves the manual lookup step; the admin still completes the purchase
-    themselves on fragment.com.
+def fragment_stars_link(quantity: int) -> str:
+    """Link to Fragment's "buy stars" page with the quantity pre-filled.
+
+    Fragment's `recipient` query param is not the plain @username — it's an
+    opaque token Fragment itself generates once you search for that user on
+    their site, and there's no public way to produce it ourselves. So the
+    admin still has to search the recipient by hand on Fragment; only the
+    quantity is pre-filled here to save that one step.
     """
-    clean_username = username.strip().lstrip("@")
-    return f"https://fragment.com/stars/buy?recipient={clean_username}&quantity={quantity}"
+    return f"https://fragment.com/stars/buy?quantity={quantity}"

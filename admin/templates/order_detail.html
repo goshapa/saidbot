@@ -20,10 +20,12 @@
 
     {% if fragment_link %}
     <div class="alert alert-info mt-3">
-      <strong>{{ fragment_link.quantity }} Stars</strong> для @{{ order.recipient_info.lstrip("@") }} —
+      Нужно купить <strong>{{ fragment_link.quantity }} Stars</strong> для
+      <strong>@{{ order.recipient_info.lstrip("@") }}</strong>.
       <a href="{{ fragment_link.url }}" target="_blank" rel="noopener" class="btn btn-sm btn-warning ms-2">
-        🌟 Купить на Fragment
+        🌟 Открыть Fragment (количество уже подставлено)
       </a>
+      <div class="form-text">Получателя на Fragment нужно найти вручную — сайт не позволяет подставить его через ссылку.</div>
     </div>
     {% endif %}
 
