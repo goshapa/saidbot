@@ -6,13 +6,23 @@ load_dotenv()
 
 
 def _parse_admin_ids(raw: str) -> list[int]:
-    return [int(x.strip()) for x in raw.split(",") if x.strip()]
+    ids = []
+    for chunk in raw.split(","):
+        chunk = chunk.strip()
+        if chunk.isdigit():
+            ids.append(int(chunk))
+    return ids
+
+
+def _parse_int(raw: str) -> int:
+    raw = raw.strip()
+    return int(raw) if raw.isdigit() else 0
 
 
 class Settings:
     BOT_TOKEN: str = os.getenv("BOT_TOKEN", "")
     ADMIN_IDS: list[int] = _parse_admin_ids(os.getenv("ADMIN_IDS", ""))
-    ADMIN_CHAT_ID: int = int(os.getenv("ADMIN_CHAT_ID", "0") or 0)
+    ADMIN_CHAT_ID: int = _parse_int(os.getenv("ADMIN_CHAT_ID", "0"))
 
     DATABASE_URL: str = os.getenv("DATABASE_URL", "sqlite+aiosqlite:///./data/saidbot.db")
     CURRENCY: str = os.getenv("CURRENCY", "UZS")
