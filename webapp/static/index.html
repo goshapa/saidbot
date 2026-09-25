@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>Магазин</title>
-  <link rel="stylesheet" href="/style.css?v=5">
+  <link rel="stylesheet" href="/style.css?v=6">
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
 </head>
 <body>
@@ -90,10 +90,10 @@
         <div class="row" style="margin-top:8px;"><span class="label">Получатель</span><span class="value" id="pay-holder"></span></div>
       </div>
       <p class="muted">Переведите сумму на карту выше, затем загрузите скриншот/фото чека.</p>
-      <div class="upload-box" id="upload-box">
+      <label class="upload-box" id="upload-box" for="receipt-input">
         📎 Нажмите, чтобы выбрать фото чека
-        <input type="file" id="receipt-input" accept="image/*" style="display:none">
-      </div>
+      </label>
+      <input type="file" id="receipt-input" accept="image/*" style="position:absolute; width:1px; height:1px; opacity:0; pointer-events:none;">
       <button id="btn-send-receipt" class="primary-btn" disabled>Отправить чек</button>
     </div>
 
@@ -138,6 +138,6 @@
    </div>
   </div>
 
-  <script src="/app.js?v=5"></script>
+  <script src="/app.js?v=6"></script>
 </body>
 </html>

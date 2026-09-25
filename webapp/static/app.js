@@ -277,10 +277,6 @@ document.getElementById("pay-card-number").onclick = () => {
   }).catch(() => {});
 };
 
-document.getElementById("upload-box").onclick = () => {
-  document.getElementById("receipt-input").click();
-};
-
 document.getElementById("receipt-input").onchange = (e) => {
   const file = e.target.files[0];
   if (!file) return;

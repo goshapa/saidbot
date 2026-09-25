@@ -438,6 +438,7 @@ button {
 }
 
 .upload-box {
+  display: block;
   border: 2px dashed var(--card-border);
   border-radius: var(--radius-md);
   padding: 24px 16px;
