@@ -4,12 +4,13 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>Магазин</title>
-  <link rel="stylesheet" href="/style.css?v=7">
+  <link rel="stylesheet" href="/style.css?v=8">
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
 </head>
 <body>
 
   <div id="splash">
+    <div class="mark" id="splash-mark"></div>
     <div class="spinner"></div>
   </div>
 
@@ -56,7 +57,7 @@
     <div id="screen-order" class="screen hidden">
       <button class="back-link" data-back="catalog" data-label="Назад"></button>
       <div class="panel">
-        <h3 id="order-title" style="font-size:15px; font-weight:600; margin-bottom:12px;"></h3>
+        <h3 class="panel-title" id="order-title"></h3>
         <div id="order-quantity-field" class="field hidden">
           <label id="order-quantity-label">Количество</label>
           <div id="qty-presets" class="qty-presets"></div>
@@ -66,7 +67,7 @@
           <label id="order-recipient-label"></label>
           <input id="order-recipient-input" type="text" placeholder="Введите данные">
         </div>
-        <div class="row"><span class="label">Сумма к оплате</span><span class="value" id="order-price"></span></div>
+        <div class="row divider emphasis"><span class="label">К оплате</span><span class="value" id="order-price"></span></div>
       </div>
       <button id="btn-create-order" class="primary-btn">Оформить заказ</button>
     </div>
@@ -76,13 +77,16 @@
       <button class="back-link" data-back="home" data-label="В магазин"></button>
       <div class="panel">
         <div class="row"><span class="label">Заказ</span><span class="value">№<span id="pay-order-id"></span></span></div>
-        <div class="row"><span class="label">Сумма</span><span class="value" id="pay-amount"></span></div>
+        <div class="row divider emphasis"><span class="label">К оплате</span><span class="value" id="pay-amount"></span></div>
       </div>
       <div class="panel">
         <div class="row"><span class="label">Банк</span><span class="value" id="pay-bank"></span></div>
-        <div class="card-number" id="pay-card-number"></div>
-        <div class="copy-hint">Нажмите на номер, чтобы скопировать</div>
-        <div class="row" style="margin-top:10px;"><span class="label">Получатель</span><span class="value" id="pay-holder"></span></div>
+        <div class="card-number" id="pay-card-number">
+          <span id="pay-card-number-text"></span>
+          <span id="pay-card-copy-icon"></span>
+        </div>
+        <div class="copy-hint" id="copy-hint">Нажмите, чтобы скопировать номер</div>
+        <div class="row" style="margin-top:8px;"><span class="label">Получатель</span><span class="value" id="pay-holder"></span></div>
       </div>
       <p class="muted">Переведите сумму на карту выше, затем загрузите скриншот/фото чека.</p>
       <label class="upload-box" id="upload-box" for="receipt-input"><span id="upload-box-icon"></span><span id="upload-box-text">Выбрать фото чека</span></label>

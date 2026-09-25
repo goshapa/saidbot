@@ -35,6 +35,8 @@ const ICONS = {
   refresh: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4v5h5"/><path d="M20 20v-5h-5"/><path d="M5 10a7 7 0 0 1 12-4.2L20 8"/><path d="M19 14a7 7 0 0 1-12 4.2L4 16"/></svg>',
   support: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 13v-1a8 8 0 0 1 16 0v1"/><rect x="2.5" y="13" width="5" height="6" rx="1.5"/><rect x="16.5" y="13" width="5" height="6" rx="1.5"/><path d="M20 19v1a3 3 0 0 1-3 3h-3"/></svg>',
   boxEmpty: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8.5 12 3 3 8.5l9 5.5 9-5.5Z"/><path d="M3 8.5V16l9 5.5 9-5.5V8.5"/></svg>',
+  copy: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="8.5" y="8.5" width="12" height="12" rx="2.5"/><path d="M15.5 8.5V6a2 2 0 0 0-2-2H5.5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h2.5"/></svg>',
+  bag: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 8.5h11l1 12h-13l1-12Z"/><path d="M9 8.5v-2a3 3 0 0 1 6 0v2"/></svg>',
 };
 
 const CATEGORY_ICON = { stars: "star", premium: "gem", game: "gamepad" };
@@ -89,6 +91,8 @@ function setupChrome() {
   document.getElementById("profile-support-icon").innerHTML = icon("support");
   document.getElementById("profile-chevron-1").innerHTML = icon("chevronRight");
   document.getElementById("profile-chevron-2").innerHTML = icon("chevronRight");
+  document.getElementById("splash-mark").innerHTML = icon("bag");
+  document.getElementById("pay-card-copy-icon").innerHTML = icon("copy");
 }
 
 function setupUserUI() {
@@ -311,7 +315,7 @@ document.getElementById("btn-create-order").onclick = async () => {
     document.getElementById("pay-order-id").textContent = order.order_id;
     document.getElementById("pay-amount").textContent = formatMoney(order.total_price);
     document.getElementById("pay-bank").textContent = order.card.bank_name;
-    document.getElementById("pay-card-number").textContent = order.card.card_number;
+    document.getElementById("pay-card-number-text").textContent = order.card.card_number;
     document.getElementById("pay-holder").textContent = order.card.holder_name;
     receiptFile = null;
     document.getElementById("btn-send-receipt").disabled = true;
@@ -325,9 +329,19 @@ document.getElementById("btn-create-order").onclick = async () => {
 };
 
 document.getElementById("pay-card-number").onclick = () => {
-  const text = document.getElementById("pay-card-number").textContent;
+  const el = document.getElementById("pay-card-number");
+  const text = document.getElementById("pay-card-number-text").textContent;
+  const hint = document.getElementById("copy-hint");
+
   navigator.clipboard?.writeText(text.replace(/\s/g, "")).then(() => {
     if (tg?.HapticFeedback) tg.HapticFeedback.notificationOccurred("success");
+    el.classList.add("copied");
+    const prevHint = hint.textContent;
+    hint.textContent = "Скопировано";
+    setTimeout(() => {
+      el.classList.remove("copied");
+      hint.textContent = prevHint;
+    }, 1500);
   }).catch(() => {});
 };
 
