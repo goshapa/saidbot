@@ -3,6 +3,7 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, File, Form, Header, HTTPException, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 from sqlalchemy import select
 from sqlalchemy.orm import selectinload
@@ -194,4 +195,12 @@ async def upload_receipt(
     return {"status": "ok"}
 
 
-app.mount("/", StaticFiles(directory="webapp/static", html=True), name="static")
+@app.get("/")
+async def index():
+    return FileResponse(
+        "webapp/static/index.html",
+        headers={"Cache-Control": "no-cache, no-store, must-revalidate"},
+    )
+
+
+app.mount("/", StaticFiles(directory="webapp/static"), name="static")
