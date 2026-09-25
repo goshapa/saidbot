@@ -20,7 +20,7 @@ async def get_or_create_user(session: AsyncSession, tg_id: int, username: str | 
 
 async def get_active_card(session: AsyncSession) -> PaymentCard | None:
     result = await session.execute(
-        select(PaymentCard).where(PaymentCard.is_active.is_(True)).limit(1)
+        select(PaymentCard).where(PaymentCard.is_active.is_(True)).order_by(PaymentCard.id.desc()).limit(1)
     )
     return result.scalar_one_or_none()
 
